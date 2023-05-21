@@ -1,1 +1,8 @@
 .env
+
+Pipfile.lock
+
+**/.ipynb_checkpoints/*
+
+*.parquet
+*.csv
