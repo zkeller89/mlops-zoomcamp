@@ -30,7 +30,7 @@ def run_train(
     random_state: int,
 ):
     # Initialize a Weights & Biases run
-    wandb.init(
+    run = wandb.init(
         project=wandb_project,
         entity=wandb_entity,
         job_type="train",
@@ -51,11 +51,17 @@ def run_train(
 
     mse = mean_squared_error(y_val, y_pred, squared=False)
     # TODO: Log `mse` to Weights & Biases under the key `"MSE"`
+    wandb.log({'MSE': mse})
 
     with open("regressor.pkl", "wb") as f:
         pickle.dump(rf, f)
 
     # TODO: Log `regressor.pkl` as an artifact of type `model`
+    artifact = wandb.Artifact('regressor', type='model')
+    artifact.add_file(local_path='regressor.pkl')
+    run.log_artifact(artifact)
+
+
 
 
 if __name__ == "__main__":

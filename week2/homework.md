@@ -1,6 +1,6 @@
 ## Homework
 
-The goal of this homework is to get familiar with tools like MLflow for experiment tracking and 
+The goal of this homework is to get familiar with tools like MLflow for experiment tracking and
 model management.
 
 
@@ -8,7 +8,7 @@ model management.
 
 To get started with MLflow you'll need to install the appropriate Python package.
 
-For this we recommend creating a separate Python environment, for example, you can use [conda environments](https://docs.conda.io/projects/conda/en/latest/user-guide/getting-started.html#managing-envs), 
+For this we recommend creating a separate Python environment, for example, you can use [conda environments](https://docs.conda.io/projects/conda/en/latest/user-guide/getting-started.html#managing-envs),
 and then install the package there with `pip` or `conda`.
 
 Once you installed the package, run the command `mlflow --version` and check the output.
@@ -18,7 +18,7 @@ What's the version that you have?
 
 ## Q2. Download and preprocess the data
 
-We'll use the Green Taxi Trip Records dataset to predict the amount of tips for each trip. 
+We'll use the Green Taxi Trip Records dataset to predict the amount of tips for each trip.
 
 Download the data for January, February and March 2022 in parquet format from [here](https://www1.nyc.gov/site/tlc/about/tlc-trip-record-data.page).
 
@@ -50,7 +50,7 @@ So what's the size of the saved `DictVectorizer` file?
 
 We will train a `RandomForestRegressor` (from Scikit-Learn) on the taxi dataset.
 
-We have prepared the training script `train.py` for this exercise, which can be also found in the folder `homework`. 
+We have prepared the training script `train.py` for this exercise, which can be also found in the folder `homework`.
 
 The script will:
 
@@ -58,7 +58,7 @@ The script will:
 * train the model on the training set,
 * calculate the RMSE score on the validation set.
 
-Your task is to modify the script to enable **autologging** with MLflow, execute the script and then launch the MLflow UI to check that the experiment run was properly tracked. 
+Your task is to modify the script to enable **autologging** with MLflow, execute the script and then launch the MLflow UI to check that the experiment run was properly tracked.
 
 Tip 1: don't forget to wrap the training code with a `with mlflow.start_run():` statement as we showed in the videos.
 
@@ -74,7 +74,7 @@ What is the value of the `max_depth` parameter:
 
 ## Launch the tracking server locally for MLflow
 
-Now we want to manage the entire lifecycle of our ML model. In this step, you'll need to launch a tracking server. This way we will also have access to the model registry. 
+Now we want to manage the entire lifecycle of our ML model. In this step, you'll need to launch a tracking server. This way we will also have access to the model registry.
 
 In case of MLflow, you need to:
 
@@ -86,8 +86,8 @@ You should keep the tracking server running to work on the next three exercises 
 
 ## Q4. Tune model hyperparameters
 
-Now let's try to reduce the validation error by tuning the hyperparameters of the `RandomForestRegressor` using `optuna`. 
-We have prepared the script `hpo.py` for this exercise. 
+Now let's try to reduce the validation error by tuning the hyperparameters of the `RandomForestRegressor` using `optuna`.
+We have prepared the script `hpo.py` for this exercise.
 
 Your task is to modify the script `hpo.py` and make sure that the validation RMSE is logged to the tracking server for each run of the hyperparameter optimization (you will need to add a few lines of code to the `objective` function) and run the script without passing any parameters.
 
@@ -110,8 +110,8 @@ What's the best validation RMSE that you got?
 
 ## Q5. Promote the best model to the model registry
 
-The results from the hyperparameter optimization are quite good. So, we can assume that we are ready to test some of these models in production. 
-In this exercise, you'll promote the best model to the model registry. We have prepared a script called `register_model.py`, which will check the results from the previous step and select the top 5 runs. 
+The results from the hyperparameter optimization are quite good. So, we can assume that we are ready to test some of these models in production.
+In this exercise, you'll promote the best model to the model registry. We have prepared a script called `register_model.py`, which will check the results from the previous step and select the top 5 runs.
 After that, it will calculate the RMSE of those models on the test set (March 2022 data) and save the results to a new experiment called `random-forest-best-models`.
 
 Your task is to update the script `register_model.py` so that it selects the model with the lowest RMSE on the test set and registers it to the model registry.
@@ -148,6 +148,7 @@ Now explore your best model in the model registry using UI. What information doe
 
 ## Deadline
 
-The deadline for submitting is 1 June 2023 (Thursday), 23:00 CEST (Berlin time). 
+The deadline for submitting is 1 June 2023 (Thursday), 23:00 CEST (Berlin time).
 
 After that, the form will be closed.
+

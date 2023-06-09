@@ -6,3 +6,11 @@ Pipfile.lock
 
 *.parquet
 *.csv
+*.yaml
+*.log
+*.json
+*.txt
+*.wandb
+*.pkl
+
+**/wandb/*

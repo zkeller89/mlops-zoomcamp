@@ -35,3 +35,4 @@ if __name__ == '__main__':
     mlflow.set_experiment('hw2_training')
     with mlflow.start_run():
         run_train()
+
