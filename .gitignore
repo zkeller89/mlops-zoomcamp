@@ -12,5 +12,9 @@ Pipfile.lock
 *.txt
 *.wandb
 *.pkl
+*.jpg
+*.png
+*.b
+*.xgb
 
 **/wandb/*
