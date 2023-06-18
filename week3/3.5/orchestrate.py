@@ -10,6 +10,8 @@ import mlflow
 import xgboost as xgb
 from prefect import flow, task
 
+from prefect_email import EmailServerCredentials, email_send_message
+email_credentials_block = EmailServerCredentials.load("mlops-email")
 
 @task(retries=3, retry_delay_seconds=2)
 def read_data(filename: str) -> pd.DataFrame:
@@ -106,8 +108,7 @@ def train_best_model(
         mlflow.log_artifact("models/preprocessor.b", artifact_path="preprocessor")
 
         mlflow.xgboost.log_model(booster, artifact_path="models_mlflow")
-    return None
-
+    return rmse
 
 @flow
 def main_flow(
@@ -128,8 +129,21 @@ def main_flow(
     X_train, X_val, y_train, y_val, dv = add_features(df_train, df_val)
 
     # Train
-    train_best_model(X_train, X_val, y_train, y_val, dv)
+    rmse = train_best_model(X_train, X_val, y_train, y_val, dv)
 
+    email_msg = f"""
+        <h1>RMSE<h1>
+        RMSE is: ${rmse}.
+        Thanks,
+        Zack
+    """
+
+    email_send_message(
+        email_server_credentials=email_credentials_block,
+        subject='MLOps Prefect Email: Hw3',
+        msg=email_msg,
+        email_to='keller.zr@gmail.com'
+    )
 
 if __name__ == "__main__":
     main_flow()
