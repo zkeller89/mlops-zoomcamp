@@ -4,10 +4,6 @@ import pandas as pd
 
 from google.cloud import storage
 
-# For logging / debugging IAM roles
-import logging
-import http.client
-
 def get_output_file(year, month):
     with open('model.bin', 'rb') as f_in:
         dv, model = pickle.load(f_in)
@@ -73,9 +69,9 @@ def upload_blob(bucket_name, source_file_name, destination_blob_name):
     # object that does not yet exist, set the if_generation_match precondition to 0.
     # If the destination object already exists in your bucket, set instead a
     # generation-match precondition using its generation number.
-    generation_match_precondition = 0
+    # generation_match_precondition = 0
 
-    blob.upload_from_filename(source_file_name, if_generation_match=generation_match_precondition)
+    blob.upload_from_filename(source_file_name)
 
     print(f"File {source_file_name} uploaded to {destination_blob_name}.")
 
@@ -85,9 +81,6 @@ if __name__ == '__main__':
     BUCKET = 'mlops-zoomcamp-hw4'
 
     output_file = get_output_file(year, month)
-
-    logging.basicConfig(level=logging.DEBUG)
-    http.client.HTTPConnection.debuglevel=5
 
     upload_blob(
         bucket_name=BUCKET,
