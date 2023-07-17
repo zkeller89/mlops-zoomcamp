@@ -10,9 +10,12 @@ pyarrow = "*"
 s3fs = "*"
 jupyter = "*"
 pytest = "*"
+awscli-local = "*"
+boto3 = "*"
 
 [dev-packages]
 pytest = "*"
+localstack = "*"
 
 [requires]
 python_version = "3.10"

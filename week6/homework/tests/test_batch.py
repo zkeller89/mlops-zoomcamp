@@ -2,7 +2,7 @@ import pandas as pd
 from pandas import Timestamp
 from datetime import datetime
 
-from batch import DataProcessor
+from batch import prepare_data
 
 def test_prepare_data():
     def dt(hour, minute, second=0):
@@ -20,8 +20,7 @@ def test_prepare_data():
     columns = ['PULocationID', 'DOLocationID', 'tpep_pickup_datetime', 'tpep_dropoff_datetime']
     df = pd.DataFrame(data, columns=columns)
 
-    dp = DataProcessor(df, 2022, 1)
-    df = dp.prepare_data()
+    df = prepare_data(df, 2022, 1)
 
     result = {
         'PULocationID': {0: '-1', 1: '1', 2: '1'},
