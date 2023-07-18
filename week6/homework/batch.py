@@ -6,9 +6,14 @@ import os
 import pickle
 import pandas as pd
 
-def get_input_path(year, month):
+def get_input_path(year, month, default):
     default_input_pattern = 'https://d37ci6vzurychx.cloudfront.net/trip-data/yellow_tripdata_{year:04d}-{month:02d}.parquet'
-    input_pattern = os.getenv('INPUT_FILE_PATTERN', default_input_pattern)
+
+    if default:
+        input_pattern = default_input_pattern
+    else:
+        input_pattern = os.getenv('INPUT_FILE_PATTERN', default_input_pattern)
+
     return input_pattern.format(year=year, month=month)
 
 def get_output_path(year, month):
@@ -17,9 +22,9 @@ def get_output_path(year, month):
     output_pattern = os.getenv('OUTPUT_FILE_PATTERN', default_output_pattern)
     return output_pattern.format(year=year, month=month)
 
-def read_data(year, month):
-    fpath = get_input_path(year, month)
-    df = pd.read_parquet(fpath)
+def read_data(fpath, options=None):
+    print(fpath)
+    df = pd.read_parquet(fpath, storage_options=options)
 
     return(df)
 
@@ -45,14 +50,11 @@ def save_data(df, year, month):
     df.to_parquet(fpath, storage_options=options)
 
 def main(year, month):
-    input_file = get_input_path(year, month)
-    output_file = get_output_path(year, month)
-
     with open('model.bin', 'rb') as f_in:
         dv, lr = pickle.load(f_in)
 
-
-    df = read_data(year, month)
+    input_path = get_input_path(year, month, default=True)
+    df = read_data(input_path)
     df = prepare_data(df, year, month)
 
     categorical = ['PULocationID', 'DOLocationID']
@@ -71,8 +73,8 @@ def main(year, month):
             'endpoint_url': 'http://localhost:4566'
         }
     }
+
     output_file = get_output_path(year, month)
-    # df_result.to_parquet(output_file, engine='pyarrow', index=False)
     df_result.to_parquet(
         output_file,
         engine='pyarrow',
@@ -83,4 +85,6 @@ def main(year, month):
     return 0
 
 if __name__ == '__main__':
-    sys.exit(main(2022, 2))
+    year = int(sys.argv[1])
+    month = int(sys.argv[2])
+    sys.exit(main(year, month))

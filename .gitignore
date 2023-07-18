@@ -16,5 +16,6 @@ Pipfile.lock
 *.png
 *.b
 *.xgb
+*.pyc
 
 **/wandb/*
