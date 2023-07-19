@@ -1,8 +1,12 @@
+import os
 import pandas as pd
 from pandas import Timestamp
 from datetime import datetime
 
-from batch import prepare_data
+from batch import (
+    get_input_path, get_predictions, get_output_path,
+    read_data, prepare_data, save_data
+)
 
 def test_prepare_data():
     def dt(hour, minute, second=0):
@@ -17,8 +21,12 @@ def test_prepare_data():
         (3, 4, dt(1, 2, 0), dt(2, 2, 1)),
     ]
 
+    input_file = get_input_path(2022, 1, False)
+    output_file = get_output_path(2022, 1, False)
+
     columns = ['PULocationID', 'DOLocationID', 'tpep_pickup_datetime', 'tpep_dropoff_datetime']
     df = pd.DataFrame(data, columns=columns)
+    save_data(df, input_file, default=False)
 
     df = prepare_data(df, 2022, 1)
 
@@ -41,5 +49,10 @@ def test_prepare_data():
 
     res_df = pd.DataFrame(result)
 
-    assert res_df.equals(df)
+    df_post = prepare_data(df, 2022, 1)
+    y_pred = get_predictions(df_post)
+    print('predicted mean duration:', y_pred.mean())
 
+    os.system('python batch.py 2022 1')
+
+    assert res_df.equals(df)

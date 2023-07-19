@@ -6,7 +6,7 @@ import os
 import pickle
 import pandas as pd
 
-def get_input_path(year, month, default):
+def get_input_path(year, month, default=True):
     default_input_pattern = 'https://d37ci6vzurychx.cloudfront.net/trip-data/yellow_tripdata_{year:04d}-{month:02d}.parquet'
 
     if default:
@@ -16,10 +16,13 @@ def get_input_path(year, month, default):
 
     return input_pattern.format(year=year, month=month)
 
-def get_output_path(year, month):
-    default_output_pattern = 's3://nyc-duration-prediction-zack/taxi_type=fhv/year={year:04d}/month={month:02d}/predictions.parquet'
+def get_output_path(year, month, default=True):
     default_output_pattern = 's3://nyc-duration/taxi_type=fhv/year={year:04d}/month={month:02d}/predictions.parquet'
-    output_pattern = os.getenv('OUTPUT_FILE_PATTERN', default_output_pattern)
+    if default:
+        output_pattern = default_output_pattern
+    else:
+        output_pattern = os.getenv('OUTPUT_FILE_PATTERN', default_output_pattern)
+
     return output_pattern.format(year=year, month=month)
 
 def read_data(fpath, options=None):
@@ -40,27 +43,41 @@ def prepare_data(df, year, month):
 
     return(df)
 
-def save_data(df, year, month):
-    fpath = get_output_path(year, month)
-    options = {
-        'client_kwargs': {
-            'endpoint_url': 'S3_ENDPOINT_URL'
-        }
-    }
-    df.to_parquet(fpath, storage_options=options)
-
-def main(year, month):
+def get_predictions(df):
     with open('model.bin', 'rb') as f_in:
         dv, lr = pickle.load(f_in)
-
-    input_path = get_input_path(year, month, default=True)
-    df = read_data(input_path)
-    df = prepare_data(df, year, month)
 
     categorical = ['PULocationID', 'DOLocationID']
     dicts = df[categorical].to_dict(orient='records')
     X_val = dv.transform(dicts)
     y_pred = lr.predict(X_val)
+
+    return(y_pred)
+
+def save_data(df, fpath, default=True):
+    endpoint = os.getenv("S3_ENDPOINT_URL")
+
+    options=None
+    if endpoint and not default:
+        options = {
+            'client_kwargs': {
+                'endpoint_url': endpoint
+            }
+        }
+
+    df.to_parquet(
+        fpath,
+        engine='pyarrow',
+        index=False,
+        storage_options=options
+    )
+
+def main(year, month):
+    input_path = get_input_path(year, month, default=True)
+    df = read_data(input_path)
+    df = prepare_data(df, year, month)
+
+    y_pred = get_predictions(df)
 
     print('predicted mean duration:', y_pred.mean())
 
@@ -68,19 +85,8 @@ def main(year, month):
     df_result['ride_id'] = df['ride_id']
     df_result['predicted_duration'] = y_pred
 
-    options = {
-        'client_kwargs': {
-            'endpoint_url': 'http://localhost:4566'
-        }
-    }
-
-    output_file = get_output_path(year, month)
-    df_result.to_parquet(
-        output_file,
-        engine='pyarrow',
-        index=False,
-        storage_options=options
-    )
+    output_path = get_output_path(year, month, default=False)
+    save_data(df_result, output_path, False)
 
     return 0
 
